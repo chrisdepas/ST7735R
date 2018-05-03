@@ -5,6 +5,7 @@ Changed names to be easier to type, allow defining pins etc from arduino, consol
 Name style isn't consistant, will probably change this soon
 
 Changes:
+
 | Old                          | New                        |
 | ---------------------------- | -------------------------- |
 | ST7735R_BEGIN_TRANSACTION    | DisplayBeginTransaction    |
