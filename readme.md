@@ -1,4 +1,38 @@
-![TFT display](/pics/logo.jpg "Arduino ST7735R TFT")
+Fork of https://github.com/juj/ST7735R
+
+Changed names to be easier to type, allow defining pins etc from arduino, consolidated into single file, removed SDCard stuff.
+
+Name style isn't consistant, will probably change this soon
+
+Changes:
+| Old                          | New                        |
+| ---------------------------- | -------------------------- |
+| ST7735R_BEGIN_TRANSACTION    | DisplayBeginTransaction    |
+| ST7735R_END_TRANSACTION      | DisplayEndTransaction      |
+| ST7735R_SendCommandList      | Display_SendCommandList    |
+| ST7735R_Begin                | DisplayBegin               |
+| ST7735R_Line                 | Display_Line               |
+| ST7735R_DrawMonoSprite       | Display_DrawMonoSprite     |
+| ST7735R_SendCommandList      | Display_SendCommandList    |
+| ST7735R_BeginRect            | DisplayBeginRect           |
+| ST7735R_PushPixel            | Display_PushPixel          |
+| ST7735R_EndDraw              | DisplayEndDraw             |
+| ST7735R_BeginPixels          | DisplayBeginPixels         |
+| ST7735R_Pixel                | DisplayPixel               |
+| ST7735R_PushPixel_U16        | Display_PushPixel_U16      |
+| ST7735R_FillRect             | Display_FillRect           |
+| ST7735R_Circle               | Display_Circle             |
+| ST7735R_DrawText             | DisplayDrawText            |
+| ST7735R_FilledCircle         | Display_FilledCircle       |
+| ST7735R_DrawMonoSprite       | Display_DrawMonoSprite     |
+| SDCard_GetFileStartingBlock  | Removed                    |
+| ST7735R_Draw565              | Removed                    |
+| ST7735R_DrawBMP              | Removed                    |
+| LoadBMPImage                 | Removed                    |
+
+_______________________________________________________________________________
+
+Original Readme (Without test related info):
 
 This repository contains a fast low level Arduino Uno compatible graphics library for the 160x128 pixel 16-bit color TFT LCD display that uses the ST7735R chip. It was written as a programming exercise after realizing that the built-in "Adafruit" TFT library that Arduino ships with is very slow. I wanted to display some slideshow images on the TFT using an Arduino, but unfortunately the built-in libraries take about 2.9 seconds(!) to draw a single 160x128 image on the screen from the SD card. With this library, it is possible to draw an image in about 188 milliseconds, which is a considerable 15.2x performance increase! The aim of this code is to squeeze every individual clock cycle out of the drawing routines to see how fast it is possible to drive the ST7735R display. If you can improve the code here, please let me know.
 
@@ -30,86 +64,3 @@ The library has only been used on an Arduino Uno with 8MHz hardware SPI mode, an
 #### License and Usage
 
 Unless otherwise stated in individual files, all code is released to public domain. Do whatever you wish with it. This repository is a result of some **recreational hacking** activity, rather than a mission to build a stable and maintained library, so expect the maturity to be as such.
-
-#### Sample code
-
-The files `Testx_yyyyy.h` implement different test rendering patterns for the library. To run one of these tests, open the file `ST7735R.ino` in the Arduino IDE, and uncomment the appropriate `#include "Testx_yyyyy.h"` lines to build that test. Configure the file accordingly. In order for the default configuration to work, you must run on Arduino Uno and have the pins connected according to the order recommended here: http://www.arduino.cc/en/Guide/TFTtoBoards . Otherwise edit the `#define`s at the top of the files `ST7735R_TFT.h` and `SDCardBlockRead.h`.
-
-##### Test1_Fillscreen
-
-![Test1_Fillscreen](/pics/Test1_Fillscreen.jpg "Test1_Fillscreen")
-
-This test measures rectangle filling performance, and compares the Arduino `TFT::background()` method to its replacement function `ST7735R_FillRect()` in this library.
-
-##### Test2_Blocks
-
-![Test2_Blocks](/pics/Test2_Blocks.jpg "Test2_Blocks")
-
-This test measures the performance of drawing multiple small rectangles, and compares the Arduino `TFT::point()` method to `ST7735R_FillRect()` in this library.
-
-##### Test3_WanderingText
-
-![Test3_WanderingText](/pics/Test3_WanderingText.jpg "Test3_WanderingText")
-
-This test is a comparison of the Arduino `TFT::text()` function against the `ST7735R_DrawText()` function in this library.
-
-##### Test4_Starfield
-
-![Test4_Starfield](/pics/Test4_Starfield.jpg "Test4_Starfield")
-
-This test measures the performance of drawing individual pixels with `TFT::point()` against the `ST7735R_Pixel()` function in this library. In this library, individual pixel rendering is batched, and must be enclosed between a block of calls to the functions `ST7735R_BeginPixels()` and `ST7735R_EndDraw()`.
-
-##### Test5_Lines
-
-![Test5_Lines](/pics/Test5_Lines.jpg "Test5_Lines")
-
-This test draws arbitrarily slanted lines using either the Arduino function `TFT::line()`, or the function `ST7735R_Line()` in this library.
-
-##### Test6_DrawBMP
-
-![Test6_DrawBMP](/pics/Test6_DrawBMP.jpg "Test6_DrawBMP")
-
-In this sample, a slideshow of full screen .bmp images are rendered with the functions `TFT::loadImage` + `TFT::image`, or with the functions `LoadBMPImage(SDCard_GetFileStartingBlock(filename))` and `ST7735R_DrawBMP()`.
-
-##### Test7_Draw565
-
-![Test7_Draw565](/pics/Test7_Draw565.jpg "Test7_Draw565")
-
-This test demonstrates how a custom prepared file format can be used to accelerate imare rendering even further. The functions `SDCard_GetFileStartingBlock()` and `ST7735R_Draw565()` are used here.
-
-##### Test8_HilbertCurve
-
-![Test8_HilbertCurve](/pics/Test8_HilbertCurve.jpg "Test8_HilbertCurve")
-
-This sample code draws small polyline segments and compares the tradeoff of rendering individual points versus lines.
-
-##### Test9_HypnoCircle
-
-![Test9_HypnoCircle](/pics/Test9_HypnoCircle.jpg "Test9_HypnoCircle")
-
-This test demonstrates the rendering of hollow circles, either using the built-in `TFT::circle()` function (with the `noFill` option), or the function `ST7735R_Circle()` found in this library.
-
-##### Test10_FilledCircle
-
-![Test10_FilledCircle](/pics/Test10_FilledCircle.jpg "Test10_FilledCircle")
-
-This test demonstrates the rendering of solid filled circles, either using the built-in `TFT::circle()` function (with the `noStroke` option), or the function `ST7735R_FilledCircle()` from in this library.
-
-#### Performance Comparison
-
-Toggle the `#define USE_ARDUINO_TFT` in `ST7735R.ino` to compare performance between the built-in Arduino "Adafruit" TFT library and this library. Each test measures the total time to render per frame in microseconds. That gives several data points to compare the performance of this library against the built-in library.
-
-| Test                | Adafruit            | This library       | Relative    |
-| ------------------- | ------------------- | ------------------ | ----------- |
-| Test1_FillScreen    |  105752 &micro;secs |  54072 &micro;secs |  **-48.9%** |
-| Test2_Blocks        |  524184 &micro;secs |  20480 &micro;secs |  **-96.0%** |
-| Test3_WanderingText |  218328 &micro;secs |  28556 &micro;secs |  **-86.9%** |
-| Test4_Starfield     |   68302 &micro;secs |  25670 &micro;secs |  **-62.4%** |
-| Test5_Lines         |  592560 &micro;secs |  61460 &micro;secs |  **-89.6%** |
-| Test6_DrawBMP       | 2858852 &micro;secs | 318028 &micro;secs |  **-88.9%** |
-| Test7_Draw565       |                 N/A | 187820 &micro;secs |           - |
-| Test8_HilbertCurve  |  576948 &micro;secs | 324492 &micro;secs |  **-43.8%** |
-| Test9_HypnoCircle   |  915260 &micro;secs | 111356 &micro;secs |  **-87.8%** |
-| Test10_FilledCircle | 2082480 &micro;secs | 933720 &micro;secs |  **-55.2%** |
-
-Overall the data shows that one can expect a performance increase from 2x to 10x by bypassing the built-in TFT library.
