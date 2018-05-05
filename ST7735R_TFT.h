@@ -74,6 +74,13 @@
 // End configuration
 //*************************************************************************************************
 
+// Helper - Screen min and max
+#define ST7735R_MIN_X 0
+#define ST7735R_MIN_Y 0
+#define ST7735R_MAX_X ST7735R_WIDTH - 1
+#define ST7735R_MAX_Y ST7735R_HEIGHT - 1
+
+
 // void DisplayDrawText(int x, int y, const char *text, uint8_t r, uint8_t g, uint8_t b, uint8_t bgR, uint8_t bgG, uint8_t bgB);
 // Renders text using the Monaco font. To convert fonts to C headers for inclusion, use ttffont_to_cppheader.py
 
@@ -237,14 +244,14 @@
 #define ST7735R_RDID2   0xDC // Read ID3 (two reads follows)
 
 extern PROGMEM const unsigned char ST7735R_Init_Sequence[];
-void Display_SendCommandList(const uint8_t *addr);
+void DisplaySendCommandList(const uint8_t *addr);
 void DisplayBegin();
-void Display_Line(int x0, int y0, int x1, int y1, uint8_t r, uint8_t g, uint8_t b);
-void Display_DrawMonoSprite(int x, int y, const uint8_t *addr, int width, int height,
+void DisplayLine(int x0, int y0, int x1, int y1, uint8_t r, uint8_t g, uint8_t b);
+void DisplayDrawMonoSprite(int x, int y, const uint8_t *addr, int width, int height,
                             uint8_t lo, uint8_t hi, uint8_t bgLo, uint8_t bgHi);
 void DisplayDrawText(int x, int y, const char *text, uint8_t r, uint8_t g, uint8_t b,
                       uint8_t bgR, uint8_t bgG, uint8_t bgB);
-void ST7735R_Draw565(int x, int y, uint32_t imageDataBlock);
+void DisplayDraw565(int x, int y, uint32_t imageDataBlock);
 
 // Adapted from Arduino.cc TFT library:
 #define DELAY 0x80
@@ -263,7 +270,7 @@ PROGMEM const unsigned char ST7735R_Init_Sequence[] =
 };
 
 // Adapted from Arduino.cc TFT library:
-void Display_SendCommandList(const uint8_t *addr)
+void DisplaySendCommandList(const uint8_t *addr)
 {
   uint8_t numCommands = pgm_read_byte(addr++);
   while(numCommands--)
@@ -298,7 +305,7 @@ void DisplayBegin()
 
   DisplayBeginTransaction();
   BEGIN_TFT();
-  Display_SendCommandList(ST7735R_Init_Sequence);
+  DisplaySendCommandList(ST7735R_Init_Sequence);
   END_TFT();
   DisplayEndTransaction();
 }
@@ -310,7 +317,7 @@ void DisplayBegin()
 //   DisplayBeginRect(topLeftX, topLeftY, bottomRightX, bottomRightY);
 //   for(int y = topLeftY; y <= bottomRightY; ++y)
 //      for(int x = topLeftX; x <= bottomRightX; ++x)
-//         Display_PushPixel(r, g, b);
+//         DisplayPushPixel(r, g, b);
 //   DisplayEndDraw();
 #define DisplayBeginRect(x0, y0, x1, y1) \
   do { \
@@ -383,7 +390,7 @@ void DisplayBegin()
 // Specifies the next pixel in a rectangular grid of pixels. Call this function
 // only in between a DisplayBeginRect() and DisplayEndDraw() block.
 // r,g,b: Color of the pixel, each value in the range [0, 255], i.e. 24-bit colors.
-#define Display_PushPixel(r,g,b) \
+#define DisplayPushPixel(r,g,b) \
   do { \
     uint8_t hi = HI8_RGB24(r,g,b); \
     WAIT_SPI; \
@@ -396,19 +403,19 @@ void DisplayBegin()
 // Specifies the next pixel in a rectangular grid of pixels, in two 8-bit halves of the
 // 16-bit RGB565 color. Call this function only in between a DisplayBeginRect()
 // and DisplayEndDraw() block.
-// This function can be used as a replacement for Display_PushPixel() wherever
+// This function can be used as a replacement for DisplayPushPixel() wherever
 // that function is accepted. This function is a tiny bit faster in the case when
 // doing single color fills, in which case one can precompute the color up front.
 // i.e. the two code snippets are equivalent:
 //
-//    Display_PushPixel(r,g,b);
+//    DisplayPushPixel(r,g,b);
 //
 //  vs
 //
 //    uint8_t lo = LO8_RGB24(r,g,b);
 //    uint8_t hi = HI8_RGB24(r,g,b);
-//    Display_PushPixel_U16(lo, hi);
-#define Display_PushPixel_U16(lo, hi) \
+//    DisplayPushPixelU16(lo, hi);
+#define DisplayPushPixelU16(lo, hi) \
   do { \
     NOP; \
     WAIT_SPI; \
@@ -416,37 +423,37 @@ void DisplayBegin()
     WRITE_SPI_NOWAIT(lo); \
   } while(0)
 
-#define ST7735R_HLine_U16(x0, x1, y, lo, hi) \
+#define DisplayHLineU16(x0, x1, y, lo, hi) \
   do { \
     DisplayBeginRect(x0, y, x1, y); \
     for(uint8_t i = x0; i <= x1; ++i) \
-      Display_PushPixel_U16(lo, hi); \
+      DisplayPushPixelU16(lo, hi); \
     WAIT_SPI; \
   } while(0)
 
-#define ST7735R_HLine(x0, x1, y, r, g, b) \
+#define DisplayHLine(x0, x1, y, r, g, b) \
   do { \
     uint8_t lo = LO8_RGB24(r,g,b); \
     uint8_t hi = HI8_RGB24(r,g,b); \
-    ST7735R_HLine_U16(x0, x1, y, lo, hi); \
+    DisplayHLineU16(x0, x1, y, lo, hi); \
   } while(0)
 
-#define ST7735R_VLine_U16(x, y0, y1, lo, hi) \
+#define DisplayVLineU16(x, y0, y1, lo, hi) \
   do { \
     DisplayBeginRect(x, y0, x, y1); \
     for(uint8_t i = (y0); i <= (y1); ++i) \
-      Display_PushPixel_U16(lo, hi); \
+      DisplayPushPixelU16(lo, hi); \
     WAIT_SPI; \
   } while(0)
 
-#define ST7735R_VLine(x, y0, y1, r, g, b) \
+#define DisplayVLine(x, y0, y1, r, g, b) \
   do { \
     uint8_t lo = LO8_RGB24(r,g,b); \
     uint8_t hi = HI8_RGB24(r,g,b); \
-    ST7735R_VLine_U16(x, y0, y1, lo, hi); \
+    DisplayVLineU16(x, y0, y1, lo, hi); \
   } while(0)
 
-#define Display_FillRect(x0, y0, x1, y1, r, g, b) \
+#define DisplayFillRect(x0, y0, x1, y1, r, g, b) \
   do { \
     uint8_t lo = LO8_RGB24(r,g,b); \
     uint8_t hi = HI8_RGB24(r,g,b); \
@@ -454,10 +461,12 @@ void DisplayBegin()
     for(uint16_t i = ((y1)-(y0)+1)*((x1)-(x0)+1); i > 0; --i) { \
       /* N.B. unrolling the loop does not help here, since the loop control \
          is already done parallel to waiting for SPI operation to complete. */ \
-        Display_PushPixel_U16(lo, hi); \
+        DisplayPushPixelU16(lo, hi); \
     } \
     WAIT_SPI; \
   } while(0)
+
+#define DisplayClear(r, g, b) DisplayFillRect(0, 0, ST7735R_WIDTH-1, ST7735R_HEIGHT-1, r, g, b)
 
 void __attribute__((always_inline)) swap_int(int &a, int &b)
 {
@@ -466,7 +475,7 @@ void __attribute__((always_inline)) swap_int(int &a, int &b)
   b = tmp;
 }
 
-void Display_Line(int x0, int y0, int x1, int y1, uint8_t r, uint8_t g, uint8_t b)
+void DisplayLine(int x0, int y0, int x1, int y1, uint8_t r, uint8_t g, uint8_t b)
 {
     int dx = x1 - x0;
     int dy = y1 - y0;
@@ -596,7 +605,7 @@ void Display_Line(int x0, int y0, int x1, int y1, uint8_t r, uint8_t g, uint8_t 
   WRITE_SPI_SYNC(hi); \
   WRITE_SPI_SYNC(lo);
 
-void Display_Circle(int x, int y, uint8_t radius, uint8_t red, uint8_t green, uint8_t blue)
+void DisplayCircle(int x, int y, uint8_t radius, uint8_t red, uint8_t green, uint8_t blue)
 {
     // TODO: x-y clipping.
     uint8_t lo = LO8_RGB24(red, green, blue);
@@ -655,12 +664,12 @@ void Display_Circle(int x, int y, uint8_t radius, uint8_t red, uint8_t green, ui
         PUSH_PIXEL(hi, lo);
     //  DisplayPixel(x - ty, y + tx, r, g, b);
         CURSORX(x - ty);
-        Display_PushPixel_U16(lo, hi);
+        DisplayPushPixelU16(lo, hi);
     }
     WAIT_SPI;
 }
 
-void Display_FilledCircle(int x, int y, uint8_t radius, uint8_t red, uint8_t green, uint8_t blue)
+void DisplayFilledCircle(int x, int y, uint8_t radius, uint8_t red, uint8_t green, uint8_t blue)
 {
     // TODO: x-y clipping.
     uint8_t lo = LO8_RGB24(red, green, blue);
@@ -674,7 +683,7 @@ void Display_FilledCircle(int x, int y, uint8_t radius, uint8_t red, uint8_t gre
 
     int nty = (ty << 1) + 1;
     for(int i = 0; i < nty; ++i)
-    Display_PushPixel_U16(lo, hi);
+    DisplayPushPixelU16(lo, hi);
 
     while(tx < ty)
     {
@@ -689,29 +698,29 @@ void Display_FilledCircle(int x, int y, uint8_t radius, uint8_t red, uint8_t gre
         CURSOR(x - tx, y - ty);
         int ntx = (tx << 1) + 1;
         for(int i = 0; i < ntx; ++i) {
-            Display_PushPixel_U16(lo, hi);
+            DisplayPushPixelU16(lo, hi);
         }
         WAIT_SPI;
         CURSORY(y + ty);
         for(int i = 0; i < ntx; ++i) {
-            Display_PushPixel_U16(lo, hi);
+            DisplayPushPixelU16(lo, hi);
         }
         WAIT_SPI;
         int nty = (ty << 1) + 1;
         CURSOR(x - ty, y - tx);
         for(int i = 0; i < nty; ++i) {
-            Display_PushPixel_U16(lo, hi);
+            DisplayPushPixelU16(lo, hi);
         }
         WAIT_SPI;
         CURSORY(y + tx);
         for(int i = 0; i < nty; ++i) {
-            Display_PushPixel_U16(lo, hi);
+            DisplayPushPixelU16(lo, hi);
         }
     }
     WAIT_SPI;
 }
 
-void Display_DrawMonoSprite(int x, int y, const uint8_t *addr, int width, int height,
+void DisplayDrawMonoSprite(int x, int y, const uint8_t *addr, int width, int height,
                             uint8_t lo, uint8_t hi, uint8_t bgLo, uint8_t bgHi)
 {
     DisplayBeginRect(x, y, x + width-1, ST7735R_HEIGHT-1);
@@ -721,8 +730,8 @@ void Display_DrawMonoSprite(int x, int y, const uint8_t *addr, int width, int he
         uint8_t byte = pgm_read_byte(addr++);
         for(uint8_t bit = 1; bit; bit <<= 1)
         {
-            if ((byte & bit) != 0) Display_PushPixel_U16(lo, hi);
-            else Display_PushPixel_U16(bgLo, bgHi);
+            if ((byte & bit) != 0) DisplayPushPixelU16(lo, hi);
+            else DisplayPushPixelU16(bgLo, bgHi);
         }
     }
     DisplayEndDraw();
@@ -847,7 +856,7 @@ void DisplayDrawText(int x, int y, /* Position */
     while(ch)
     {
         int height_adjust = pgm_read_byte(monaco_height_adjust + ch-32);
-        Display_DrawMonoSprite(x, y + height_adjust, monaco_font + (ch-32) * 5, 5, 8, lo, hi, bgLo, bgHi);
+        DisplayDrawMonoSprite(x, y + height_adjust, monaco_font + (ch-32) * 5, 5, 8, lo, hi, bgLo, bgHi);
         ++text;
         ch = *text;
         x += 6;

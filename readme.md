@@ -2,29 +2,40 @@ Fork of https://github.com/juj/ST7735R
 
 Changed names to be easier to type, allow defining pins etc from arduino, consolidated into single file, removed SDCard stuff.
 
-Name style isn't consistant, will probably change this soon
+Additions:
+  Display_Clear(r, g, b) 
+    - Sets the entire screen to a single color
+
+  ST7735R_MIN_X
+  ST7735R_MIN_Y
+  ST7735R_MAX_X
+  ST7735R_MAX_Y
+    - Helper definitions for valid x,y range. Depends on screen width/height 
+
+Name Changes:
 
 Changes:
 | Old                          | New                        |
 | ---------------------------- | -------------------------- |
+| (None)                       | DisplayClear               |
 | ST7735R_BEGIN_TRANSACTION    | DisplayBeginTransaction    |
 | ST7735R_END_TRANSACTION      | DisplayEndTransaction      |
-| ST7735R_SendCommandList      | Display_SendCommandList    |
+| ST7735R_SendCommandList      | DisplaySendCommandList     |
 | ST7735R_Begin                | DisplayBegin               |
-| ST7735R_Line                 | Display_Line               |
-| ST7735R_DrawMonoSprite       | Display_DrawMonoSprite     |
-| ST7735R_SendCommandList      | Display_SendCommandList    |
+| ST7735R_Line                 | DisplayLine                |
+| ST7735R_DrawMonoSprite       | DisplayDrawMonoSprite      |
+| ST7735R_SendCommandList      | DisplaySendCommandList     |
 | ST7735R_BeginRect            | DisplayBeginRect           |
-| ST7735R_PushPixel            | Display_PushPixel          |
+| ST7735R_PushPixel            | DisplayPushPixel           |
 | ST7735R_EndDraw              | DisplayEndDraw             |
 | ST7735R_BeginPixels          | DisplayBeginPixels         |
 | ST7735R_Pixel                | DisplayPixel               |
-| ST7735R_PushPixel_U16        | Display_PushPixel_U16      |
-| ST7735R_FillRect             | Display_FillRect           |
-| ST7735R_Circle               | Display_Circle             |
+| ST7735R_PushPixel_U16        | DisplayPushPixel_U16       |
+| ST7735R_FillRect             | DisplayFillRect            |
+| ST7735R_Circle               | DisplayCircle              |
 | ST7735R_DrawText             | DisplayDrawText            |
-| ST7735R_FilledCircle         | Display_FilledCircle       |
-| ST7735R_DrawMonoSprite       | Display_DrawMonoSprite     |
+| ST7735R_FilledCircle         | DisplayFilledCircle        |
+| ST7735R_DrawMonoSprite       | DisplayDrawMonoSprite      |
 | SDCard_GetFileStartingBlock  | Removed                    |
 | ST7735R_Draw565              | Removed                    |
 | ST7735R_DrawBMP              | Removed                    |
