@@ -1,20 +1,14 @@
-Fork of https://github.com/juj/ST7735R
+__Fork of https://github.com/juj/ST7735R__
 
-Changed names to be easier to type, allow defining pins etc from arduino, consolidated into single file, removed SDCard stuff.
+## Changes Overview
+- Shortened function names
+- Allow defining pins etc from arduino, before #include
+- Consolidated into single file
+- Removed SDCard stuff
+- Added `Display_Clear(r, g, b)` (Sets the entire screen to a single color)
+- Added ST7735R_MIN_X, ST7735R_MIN_Y, ST7735R_MAX_X, ST7735R_MAX_Y (Helper definitions for valid x,y ranges)
 
-Additions:
-  Display_Clear(r, g, b) 
-    - Sets the entire screen to a single color
-
-  ST7735R_MIN_X
-  ST7735R_MIN_Y
-  ST7735R_MAX_X
-  ST7735R_MAX_Y
-    - Helper definitions for valid x,y range. Depends on screen width/height 
-
-Name Changes:
-
-Changes:
+## Name Changes
 
 | Old                          | New                        |
 | ---------------------------- | -------------------------- |
@@ -44,7 +38,7 @@ Changes:
 
 _______________________________________________________________________________
 
-Original Readme (Without test related info):
+__Original Readme (Without test related info):__
 
 This repository contains a fast low level Arduino Uno compatible graphics library for the 160x128 pixel 16-bit color TFT LCD display that uses the ST7735R chip. It was written as a programming exercise after realizing that the built-in "Adafruit" TFT library that Arduino ships with is very slow. I wanted to display some slideshow images on the TFT using an Arduino, but unfortunately the built-in libraries take about 2.9 seconds(!) to draw a single 160x128 image on the screen from the SD card. With this library, it is possible to draw an image in about 188 milliseconds, which is a considerable 15.2x performance increase! The aim of this code is to squeeze every individual clock cycle out of the drawing routines to see how fast it is possible to drive the ST7735R display. If you can improve the code here, please let me know.
 
